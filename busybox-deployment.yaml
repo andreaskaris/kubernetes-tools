@@ -15,7 +15,8 @@ spec:
         app: busybox-pod
     spec:
       containers:
-      - image: busybox
+      - name: busybox
+        image: busybox
         command:
           - sleep
           - infinity
