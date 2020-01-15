@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fedora-deployment
+  labels:
+    app: fedora-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: fedora-pod
+  template:
+    metadata:
+      labels:
+        app: fedora-pod
+    spec:
+      containers:
+      - name: fedora
+        image: fedora
+        command:
+          - sleep
+          - infinity
+        imagePullPolicy: IfNotPresent
