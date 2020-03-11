@@ -1,0 +1,58 @@
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  creationTimestamp: null
+  generation: 1
+  name: fh
+  selfLink: /apis/image.openshift.io/v1/namespaces/default/imagestreams/fh
+spec:
+  lookupPolicy:
+    local: false
+status:
+  dockerImageRepository: docker-registry.default.svc:5000/fh
+---
+apiVersion: v1
+data:
+  run-apache.sh: |
+    #!/bin/bash
+
+    /usr/sbin/httpd $OPTIONS -DFOREGROUND
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: run-apache
+  selfLink: /api/v1/namespaces/default/configmaps/run-apache
+---
+apiVersion: v1
+kind: BuildConfig
+metadata:
+  name: fh-build
+spec:
+  source:
+    configMaps:
+      - configMap:
+          name: run-apache
+    dockerfile: |
+       FROM fedora
+       EXPOSE 8080
+       RUN yum install httpd -y
+       RUN yum install tcpdump -y
+       RUN yum install iproute -y
+       RUN yum install procps-ng -y
+       RUN echo "Apache" >> /var/www/html/index.html
+       ADD run-apache.sh /usr/share/httpd/run-apache.sh
+       RUN chown apache. /run/httpd/ -R
+       RUN chmod -v +rx /usr/share/httpd/run-apache.sh
+       RUN chown apache.  /usr/share/httpd/run-apache.sh
+       RUN usermod apache -s /bin/bash
+       RUN sed -i 's/Listen 80/Listen 8080/' /etc/httpd/conf/httpd.conf
+       RUN chown apache. /etc/httpd/logs/ -R
+       USER apache
+       CMD ["/usr/share/httpd/run-apache.sh"]
+  strategy:
+    dockerStrategy:
+      noCache: true
+  output:
+    to:
+      kind: ImageStreamTag
+      name: fh:latest
