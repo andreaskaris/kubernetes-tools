@@ -5,7 +5,7 @@ metadata:
     app: httpbin-deploymentconfig
   name: httpbin-service
 spec:
-  host: httpbin.apps.akaris.lab.pnq2.cee.redhat.com
+  host: httpbin.apps.akaris2.lab.pnq2.cee.redhat.com
   port:
     targetPort: 80
   to:
@@ -44,6 +44,32 @@ spec:
         app: httpbin-pod
     spec:
       containers:
+      - name: tshark
+        image: danielguerra/alpine-tshark 
+        command:
+          - "tshark" 
+          - "-i" 
+          - "eth0" 
+          - "-Y" 
+          - "http" 
+          - "-V"  
+          - "dst" 
+          - "port"
+          - "80"
       - name: httpbin
         image: kennethreitz/httpbin
         imagePullPolicy: Always
+        command:
+        - "gunicorn"
+        - "-b"
+        - "0.0.0.0:80"
+        - "httpbin:app"
+        - "-k"
+        - "gevent"
+        - "--capture-output"
+        - "--error-logfile"
+        - "-"
+        - "--access-logfile"
+        - "-"
+        - "--access-logformat"
+        - "'%(h)s %(t)s %(r)s %(s)s Host: %({Host}i)s} Header-i: %({Header}i)s Header-o: %({Header}o)s'"
