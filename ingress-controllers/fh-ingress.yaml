@@ -1,0 +1,50 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: fhingress-ingress
+  annotations:
+    kubernetes.io/ingress.allow-http: "true"
+spec:
+  rules:
+  - host: fh.apps.cluster.example.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: fhingress-service
+          servicePort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fhingress-service
+  labels:
+    app: fhingress-deploymentconfig
+spec:
+  selector:
+    app: fhingress-pod
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fhingress-deployment
+  labels:
+    app: fhingress-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: fhingress-pod
+  template:
+    metadata:
+      labels:
+        app: fhingress-pod
+    spec:
+      containers:
+      - name: fhingress
+        image: image-registry.openshift-image-registry.svc:5000/default/fh
+        imagePullPolicy: Always
