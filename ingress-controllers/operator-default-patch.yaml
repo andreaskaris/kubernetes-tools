@@ -1,0 +1,5 @@
+spec:
+  replicas: 1
+  namespaceSelector:
+    matchExpressions:
+      - {key: type, operator: NotIn, values: [test1, test2]}
