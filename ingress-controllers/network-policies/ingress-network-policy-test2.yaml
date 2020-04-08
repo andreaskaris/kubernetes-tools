@@ -1,0 +1,26 @@
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: default-deny
+  namespace: test2
+spec:
+  podSelector:
+  ingress: []
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-from-openshift-test2-ingress
+  namespace: test2
+spec:
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          network.openshift.io/policy-group: ingress
+      podSelector:
+        matchLabels:
+          ingresscontroller.operator.openshift.io/deployment-ingresscontroller: test2-ingress-controller
+  podSelector: {}
+  policyTypes:
+  - Ingress
