@@ -12,9 +12,13 @@ items:
       nodeSelector:
         matchLabels:
           node-role.kubernetes.io/worker: ""
+          ingressoperator: "test1"
     namespaceSelector:
       matchLabels:
         type: test1
+    endpointPublishingStrategy:
+      type: HostNetwork
+      #type: LoadBalancerService
   status: {}
 kind: List
 metadata:
