@@ -1,0 +1,72 @@
+apiVersion: v1
+data:
+  index.html: |
+    Nginx A
+kind: ConfigMap
+metadata:
+  name: nginx-deployment
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  annotations:
+    openshift.io/host.generated: "true"
+  labels:
+    app: nginx
+  name: nginx-deployment
+spec:
+  host: nginx-deployment-application.apps.akaris-osc.rhos-d.infra.prod.upshift.rdu2.redhat.com
+  port:
+    targetPort: 80
+  to:
+    kind: Service
+    name: nginx-deployment
+    weight: 100
+  wildcardPolicy: None
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: nginx
+  name: nginx-deployment
+  namespace: application
+spec:
+  clusterIP: 172.30.54.232
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: nginx
+  sessionAffinity: None
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: config-volume
+          mountPath: /usr/share/nginx/html
+      volumes:
+        - name: config-volume
+          configMap:
+            name: nginx-deployment
