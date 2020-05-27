@@ -6,24 +6,6 @@ kind: ConfigMap
 metadata:
   name: nginx-deployment-a
 ---
-apiVersion: route.openshift.io/v1
-kind: Route
-metadata:
-  annotations:
-    openshift.io/host.generated: "true"
-  labels:
-    app: nginx-a
-  name: nginx-deployment-a
-spec:
-  host: nginx-deployment-a-application.apps.akaris-osc.rhos-d.infra.prod.upshift.rdu2.redhat.com
-  port:
-    targetPort: 80
-  to:
-    kind: Service
-    name: nginx-deployment-a
-    weight: 100
-  wildcardPolicy: None
----
 apiVersion: v1
 kind: Service
 metadata:
@@ -56,6 +38,8 @@ spec:
     metadata:
       labels:
         app: nginx-a
+      annotations:
+        sidecar.istio.io/inject: "true"
     spec:
       containers:
       - name: nginx-a
