@@ -1,0 +1,90 @@
+apiVersion: config.istio.io/v1alpha2
+kind: handler
+metadata:
+  name: quotahandler
+  namespace: istio-system
+spec:
+  compiledAdapter: memquota
+  params:
+    quotas:
+    - name: requestcountquota.instance.istio-system
+      maxAmount: 500
+      validDuration: 1s
+      # The first matching override is applied.
+      # A requestcount instance is checked against override dimensions.
+      overrides:
+      # The following override applies to 'reviews' regardless
+      # of the source.
+      - dimensions:
+          destination: nginx-deployment-a
+        maxamount: 2
+        validduration: 5s
+      - dimensions:
+          destination: nginx-a
+        maxamount: 2
+        validduration: 5s
+      - dimensions:
+          destination: nginx-gateway
+        maxamount: 2
+        validduration: 5s
+      - dimensions:
+          destination: productpage
+        maxAmount: 2
+        validDuration: 5s
+---
+apiVersion: config.istio.io/v1alpha2
+kind: instance
+metadata:
+  name: requestcountquota
+  namespace: istio-system
+spec:
+  compiledTemplate: quota
+  params:
+    dimensions:
+      source: request.headers["x-forwarded-for"] | "unknown"
+      destination: destination.labels["app"] | destination.service.name | "unknown"
+      destinationVersion: destination.labels["version"] | "unknown"
+---
+apiVersion: config.istio.io/v1alpha2
+kind: QuotaSpec
+metadata:
+  name: request-count
+  namespace: istio-system
+spec:
+  rules:
+  - quotas:
+    - charge: 1
+      quota: requestcountquota
+---
+apiVersion: config.istio.io/v1alpha2
+kind: QuotaSpecBinding
+metadata:
+  name: request-count
+  namespace: istio-system
+spec:
+  quotaSpecs:
+  - name: request-count
+    namespace: istio-system
+  services:
+  - name: productpage
+    namespace: bookinfo
+  - name: nginx-deployment-a
+    namespace: application
+  - name: nginx-gateway
+    namespace: application
+  - name: nginx-a
+    namespace: application
+  - service: '*'  # Uncomment this to bind *all* services to request-count
+---
+apiVersion: config.istio.io/v1alpha2
+kind: rule
+metadata:
+  name: quota
+  namespace: istio-system
+spec:
+  # quota only applies if you are not logged in.
+  # match: match(request.headers["cookie"], "user=*") == false
+  actions:
+  - handler: quotahandler
+    instances:
+    - requestcountquota

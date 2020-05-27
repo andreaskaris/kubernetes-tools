@@ -11,8 +11,8 @@ kind: Service
 metadata:
   labels:
     app: nginx-c
+    service: nginx-deployment-c
   name: nginx-deployment-c
-  namespace: application
 spec:
   ports:
   - port: 80

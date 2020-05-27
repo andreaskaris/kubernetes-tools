@@ -20,6 +20,7 @@ spec:
   members:
     # a list of projects joined into the service mesh
     - application
+    - bookinfo
 EOF
 
 oc new-project application

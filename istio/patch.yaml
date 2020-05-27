@@ -1,0 +1,5 @@
+spec:
+  istio:
+    gateways:
+      istio-ingressgateway:
+        ior_enabled: true
