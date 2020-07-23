@@ -1,3 +1,4 @@
+# MUST RUN: oc adm policy add-scc-to-user anyuid -z default
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
