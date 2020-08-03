@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: local-volume-config
+data:
+    storageClassMap: |
+        local-loopbacks:
+            hostDir:  /mnt/local-storage/loopbacks
+            mountDir: /mnt/local-storage/loopbacks

@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: busybox-test
+  labels:
+    name: busybox-test
+spec:
+  restartPolicy: Never
+  containers:
+    - resources:
+        limits :
+          cpu: 0.5
+      image: gcr.io/google_containers/busybox
+      command:
+        - "/bin/sh"
+        - "-c"
+        - "while true; do date; sleep 1; done"
+      name: busybox
+      volumeDevices:
+        - name: vol
+          devicePath: /dev/xvda
+  volumes:
+      - name: vol
+        persistentVolumeClaim:
+          claimName: loopback-pvc
