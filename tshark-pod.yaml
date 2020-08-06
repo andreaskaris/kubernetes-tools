@@ -1,0 +1,17 @@
+# oc adm policy add-scc-to-user anyuid -z default
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tshark-pod
+  labels:
+    app: tshark-pod
+spec:
+  securityContext:
+    runAsUser: 0
+  hostNetwork: true      
+  containers:
+  - name: tshark
+    image: danielguerra/alpine-tshark 
+    command:
+      - "sleep"
+      - "3600" 
