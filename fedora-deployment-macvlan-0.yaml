@@ -5,7 +5,7 @@ metadata:
   labels:
     app: fedora-deployment
 spec:
-  replicas: 3
+  replicas: 6
   selector:
     matchLabels:
       app: fedora-pod
@@ -14,11 +14,11 @@ spec:
       labels:
         app: fedora-pod
       annotations:
-        k8s.v1.cni.cncf.io/networks: ipvlan-1,ipvlan-2
+        k8s.v1.cni.cncf.io/networks: macvlan-0
     spec:
       containers:
       - name: fedora
-        image: fedora
+        image: fedora:latest
         command:
           - sleep
           - infinity

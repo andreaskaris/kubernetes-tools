@@ -1,23 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: fedora-deployment
+  name: bastion-host-deployment
   labels:
-    app: fedora-deployment
+    app: bastion-host-deployment
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
-      app: fedora-pod
+      app: bastion-host-pod
   template:
     metadata:
       labels:
-        app: fedora-pod
-      annotations:
-        k8s.v1.cni.cncf.io/networks: ipvlan-1,ipvlan-2
+        app: bastion-host-pod
     spec:
       containers:
-      - name: fedora
+      - name: bastion-host
         image: fedora
         command:
           - sleep

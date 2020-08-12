@@ -1,24 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: fedora-deployment
+  name: ubuntu-deployment
   labels:
-    app: fedora-deployment
+    app: ubuntu-deployment
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
-      app: fedora-pod
+      app: ubuntu-pod
   template:
     metadata:
       labels:
-        app: fedora-pod
-      annotations:
-        k8s.v1.cni.cncf.io/networks: ipvlan-1,ipvlan-2
+        app: ubuntu-pod
     spec:
       containers:
-      - name: fedora
-        image: fedora
+      - name: ubuntu
+        image: ubuntu
         command:
           - sleep
           - infinity

@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fedora-custom-1-deployment
+  labels:
+    app: fedora-custom-1-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fedora-custom-1-pod
+  template:
+    metadata:
+      labels:
+        app: fedora-custom-1-pod
+      annotations:
+        k8s.v1.cni.cncf.io/networks: macvlan-10
+    spec:
+      containers:
+      - name: fedora-custom-1
+        image: image-registry.openshift-image-registry.svc:5000/openshift/fedora-custom:1.0
+        command:
+          - sleep
+          - infinity
+        imagePullPolicy: IfNotPresent
