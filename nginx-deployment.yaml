@@ -30,7 +30,6 @@ metadata:
   labels:
     app: nginx
   name: nginx-deployment
-  namespace: application
 spec:
   clusterIP: 172.30.54.232
   ports:
