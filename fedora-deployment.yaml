@@ -13,8 +13,6 @@ spec:
     metadata:
       labels:
         app: fedora-pod
-      annotations:
-        k8s.v1.cni.cncf.io/networks: ipvlan-1,ipvlan-2
     spec:
       containers:
       - name: fedora
