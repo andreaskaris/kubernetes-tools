@@ -1,0 +1,47 @@
+# Need SETFCAP to install specific RPMs like uputils
+# https://github.com/containers/podman/issues/5364
+# oc adm policy add-scc-to-user privileged -z default
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fedora-deployment
+  labels:
+    app: fedora-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: fedora-pod
+  template:
+    metadata:
+      labels:
+        app: fedora-pod
+    spec:
+      containers:
+      - name: fedora
+        image: fedora
+        command:
+          - bash
+          - /entrypoint-scripts/entrypoint.sh
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          runAsUser: 0
+        volumeMounts:
+        - name: entrypoint-scripts
+          mountPath: /entrypoint-scripts
+      volumes:
+        - name: entrypoint-scripts
+          configMap:
+            name: entrypoint-scripts
+---
+apiVersion: v1
+data:
+  entrypoint.sh: |
+    #!/bin/bash
+    yum install iproute -y
+    yum install iputils -y
+    ping -c 10 -W 1 8.8.8.8
+    sleep 3600
+kind: ConfigMap
+metadata:
+  name: entrypoint-scripts
