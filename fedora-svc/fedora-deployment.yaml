@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fedora-deployment
+  labels:
+    app: fedora-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: fedora-pod
+  template:
+    metadata:
+      labels:
+        app: fedora-pod
+    spec:
+      containers:
+      - name: fedora
+        image: fedora
+        command:
+          - bash
+          - /entrypoint-scripts/entrypoint.sh
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          runAsUser: 0
+        volumeMounts:
+        - name: entrypoint-scripts
+          mountPath: /entrypoint-scripts
+        ports:
+        - containerPort: 80
+        - containerPort: 443
+      volumes:
+        - name: entrypoint-scripts
+          configMap:
+            name: entrypoint-scripts
+---
+apiVersion: v1
+data:
+  entrypoint.sh: |
+    #!/bin/bash
+    yum install iproute -y
+    yum install iputils -y
+    yum install nc -y
+    yum install telnet -y
+    nc -l 443 -k &
+    nc -l 80 -k &
+    sleep infinity
+kind: ConfigMap
+metadata:
+  name: entrypoint-scripts
