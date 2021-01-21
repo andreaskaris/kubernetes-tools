@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus-kafka-adapter-deployment
+  namespace: prometheus-kafka-adapter
+  labels:
+    app: prometheus-kafka-adapter-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus-kafka-adapter-pod
+  template:
+    metadata:
+      labels:
+        app: prometheus-kafka-adapter-pod
+    spec:
+      containers:
+      - name: prometheus-kafka-adapter
+        image: docker.io/telefonica/prometheus-kafka-adapter:1.7.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        env:
+        - name: KAFKA_BROKER_LIST
+          value: "kafka.example.com:9092"
+          # KAFKA_TOPIC: defines kafka topic to be used, defaults to metrics. Could use go template, labels are passed (as a map) to the template: e.g: metrics.{{ index . "__name__" }} to use per-metric topic. Two template functions are available: replace ({{ index . "__name__" | replace "message" "msg" }}) and substring ({{ index . "__name__" | substring 0 5 }})
+          # KAFKA_COMPRESSION: defines the compression type to be used, defaults to none.
+          # KAFKA_BATCH_NUM_MESSAGES: defines the number of messages to batch write, defaults to 10000.
+          # SERIALIZATION_FORMAT: defines the serialization format, can be json, avro-json, defaults to json.
+          # PORT: defines http port to listen, defaults to 8080, used directly by gin.
+          # BASIC_AUTH_USERNAME: basic auth username to be used for receive endpoint, defaults is no basic auth.
+          # BASIC_AUTH_PASSWORD: basic auth password to be used for receive endpoint, defaults is no basic auth.
+          # LOG_LEVEL: defines log level for logrus, can be debug, info, warn, error, fatal or panic, defaults to info.
+          # GIN_MODE: manage gin debug logging, can be debug or release
+          # KAFKA_SSL_CLIENT_CERT_FILE: Kafka SSL client certificate file, defaults to ""
+          # KAFKA_SSL_CLIENT_KEY_FILE: Kafka SSL client certificate key file, defaults to ""
+          # KAFKA_SSL_CLIENT_KEY_PASS: Kafka SSL client certificate key password (optional), defaults to ""
+          # KAFKA_SSL_CA_CERT_FILE: Kafka SSL broker CA certificate file, defaults to ""
+          # KAFKA_SECURITY_PROTOCOL: Kafka client used protocol to communicate with brokers, must be set if SASL is going to be used, either plain or with SSL
+          # KAFKA_SASL_MECHANISM: SASL mechanism to use for authentication, defaults to ""
+          # KAFKA_SASL_USERNAME: SASL username for use with the PLAIN and SASL-SCRAM-.. mechanisms, defaults to ""
+          # KAFKA_SASL_PASSWORD: SASL password for use with the PLAIN and SASL-SCRAM-.. mechanism, defaults to ""
+
+
