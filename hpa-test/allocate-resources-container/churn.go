@@ -26,8 +26,8 @@ func main() {
 	sleeptimeMs := 1000 - runtimeMs
 
 	pid := os.Getpid()
-	fmt.Println("Our PID is: %d", pid)
-	fmt.Println("Run for %dms every 1000ms")
+	fmt.Printf("Our PID is: %d\n", pid)
+	fmt.Printf("Run for %dms every 1000ms\n", runtimeMs)
 
 	c := make(chan bool)
 	for true {

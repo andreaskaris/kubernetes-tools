@@ -1,9 +1,7 @@
 IMG ?= hpa-tester
 
 binaries: clean
-	mkdir bin 2>/dev/null
-	go build -o bin/churn churn.go
-	gcc malloc.c -o bin/mallocmb
+	bash -x build-binaries.sh
 
 clean:
 	rm -Rf bin
