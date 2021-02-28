@@ -13,21 +13,9 @@ import (
 	"time"
 )
 
-func main() {
-	if len(os.Args) != 2 {
-		fmt.Println("Provide runtime in ms")
-		os.Exit(1)
-	}
-	runtimeMs, err := strconv.Atoi(os.Args[1])
-	if err != nil || runtimeMs < 1 || runtimeMs > 999 {
-		fmt.Println("Provide runtime > 0 and < 1000")
-		os.Exit(1)
-	}
-	sleeptimeMs := 1000 - runtimeMs
-
-	pid := os.Getpid()
-	fmt.Printf("Our PID is: %d\n", pid)
+func churnProcessor(runtimeMs int) {
 	fmt.Printf("Run for %dms every 1000ms\n", runtimeMs)
+	sleeptimeMs := 1000 - runtimeMs
 
 	c := make(chan bool)
 	for true {
@@ -50,4 +38,28 @@ func main() {
 		time.Sleep(time.Millisecond * time.Duration(runtimeMs))
 		c <- true
 	}
+}
+
+func main() {
+	if len(os.Args) != 2 {
+		fmt.Println("Provide runtime in ms")
+		os.Exit(1)
+	}
+	totalRuntimeMs, err := strconv.Atoi(os.Args[1])
+	if err != nil || totalRuntimeMs < 1 {
+		fmt.Println("Provide runtime > 0")
+		os.Exit(1)
+	}
+
+	pid := os.Getpid()
+	fmt.Printf("Our PID is: %d\n", pid)
+	fmt.Printf("Run for %dms every 1000ms (cumulative runtime of all threads)\n", totalRuntimeMs)
+
+	for i := 0; i < totalRuntimeMs/1000; i++ {
+		go churnProcessor(1000)
+	}
+	if totalRuntimeMs%1000 != 0 {
+		go churnProcessor(totalRuntimeMs % 1000)
+	}
+	select {} // sleep forever
 }
