@@ -20,6 +20,10 @@ spec:
         command:
         - /bin/bash
         - /usr/local/bin/entrypoint.sh
+        resources:
+          requests:
+            cpu: "400m"
+            memory: "1024Mi"
         env:
         - name: DEPLOYMENT_NAME
           value: "hpa-tester"
