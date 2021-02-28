@@ -61,5 +61,3 @@ hpa-tester-5f7487c854-8scxc   206m   536516Ki   5m0s
 hpa-tester-5f7487c854-g94rr   195m   531440Ki   5m0s
 hpa-tester-5f7487c854-x2wmf   210m   533040Ki   5m0s
 ~~~
-
-> **NOTE:** A single pod can only reserve 1024 MB at the moment. Otherwise, it will reserve no memory at all (restriction of the mallocmb process)
