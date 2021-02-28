@@ -1,3 +1,5 @@
+### Building containers 
+
 Build with:
 ~~~
 make podman-build IMG=quay.io/akaris/hpa-tester:latest
@@ -60,4 +62,11 @@ hpa-tester-5f7487c854-7r5fr   210m   535152Ki   5m0s
 hpa-tester-5f7487c854-8scxc   206m   536516Ki   5m0s
 hpa-tester-5f7487c854-g94rr   195m   531440Ki   5m0s
 hpa-tester-5f7487c854-x2wmf   210m   533040Ki   5m0s
+~~~
+
+### Applying the HPA (Horiontal Pod Autoscaler)
+
+Apply the HPA:
+~~~
+kubectl apply -f hpa.yaml
 ~~~

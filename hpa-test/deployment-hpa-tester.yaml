@@ -22,7 +22,7 @@ spec:
         - /usr/local/bin/entrypoint.sh
         resources:
           requests:
-            cpu: "400m"
+            cpu: "200m"
             memory: "1024Mi"
         env:
         - name: DEPLOYMENT_NAME
