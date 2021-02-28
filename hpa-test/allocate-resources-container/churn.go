@@ -20,12 +20,12 @@ func churnProcessor(runtimeMs int) {
 	c := make(chan bool)
 	for true {
 		time.Sleep(time.Millisecond * time.Duration(sleeptimeMs))
-		fmt.Printf("s")
+		//fmt.Printf("s")
 		go func(c chan bool) {
 			for true {
 				select {
 				case signal := <-c:
-					fmt.Printf("e")
+					//fmt.Printf("e")
 					if signal {
 						return
 					}
