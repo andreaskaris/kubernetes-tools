@@ -27,8 +27,7 @@ spec:
           value: "15"
         # combined CPU of all pods in milliseconds (1000 is one full CPU)
         - name: COMBINED_CPU_MS
-          value: "800"
+          value: "1600"
         # combined Memory of all pods in MB
         - name: COMBINED_MEMORY_MB
-          value: "2048"
-
+          value: "4096"
