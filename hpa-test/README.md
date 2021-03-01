@@ -13,13 +13,13 @@ oc apply -f role-binding-list-deployments-pods.yaml
 oc apply -f deployment-hpa-tester.yaml
 ~~~
 
-The deployment will by default request 800ms in a single pod, and 2048 MB of memory:
+The deployment will by default request 1600ms in a single pod, and 4096 MB of memory:
 ~~~
         - name: COMBINED_CPU_MS
-          value: "800"
+          value: "1600"
         # combined Memory of all pods in MB
         - name: COMBINED_MEMORY_MB
-          value: "2048"
+          value: "4096"
 ~~~
 
 If you change the replica count, the `entrypoint.sh` will make sure to distribute the memory MB and CPU ms between the number of replicas.
