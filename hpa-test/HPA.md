@@ -9,6 +9,16 @@ For OpenShift 4.x, consider that there is a bug with the `v1` API for autoscalin
 
 * [https://access.redhat.com/solutions/5428871](https://access.redhat.com/solutions/5428871)
 
+#### Getting the examples
+
+Clone the following repository. Then, go to directory `hpa-test`:
+~~~
+git clone https://github.com/andreaskaris/kubernetes.git
+cd kubernetes/hpa-test
+~~~
+
+You will find all required resources for the following steps. See `REAME.md` in case you want to build your own `hpa-tester` image.
+
 #### Deploying an HPA tester deployment
 
 First, deploy the HPA-Tester deployment. The deployment runs 2 applications which simulate a cumulative load.  Meaning that `COMBINED_CPU_MS` and `COMBINED_MEMORY_MB` will be divided by the number of replicas for the deployment and each pod will then individually run that fraction of memory and CPU load. This check happens every `SLEEP_TIME` seconds.
