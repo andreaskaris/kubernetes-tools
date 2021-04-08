@@ -1,0 +1,66 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: fio
+spec:
+  backoffLimit: 4
+  template:
+    spec:
+      restartPolicy: Never
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: "kubernetes.io/hostname"
+                operator: In
+                values:
+                - "openshift-worker-0"
+      containers:
+      - name: fio
+        image: fedora:33
+        command:
+          - "/bin/bash"
+          - "/scripts/entrypoint.sh"
+        volumeMounts:
+        - name: scripts
+          mountPath: /scripts
+        - name: test-volume1
+          mountPath: /test-volume1
+        - name: test-volume2
+          mountPath: /test-volume2
+      volumes:
+        - name: scripts
+          configMap:
+            name: scripts
+        - name: test-volume1
+          hostPath:
+            path: /var/fio-test
+            type: Directory
+        - name: test-volume2
+          hostPath:
+            path: /var/fio-test2
+            type: Directory
+---
+apiVersion: v1
+data:
+  entrypoint.sh: |
+    #!/bin/bash
+    yum install fio -y
+    for volume in test-volume1 test-volume2 ; do
+    echo "*** volume: $volume"
+    echo "*** test1"
+    fio --filename=/$volume/test1 --direct=1 --rw=randrw --bs=4k --ioengine=libaio --iodepth=256 --runtime=120 --numjobs=4 --time_based --group_reporting --name=iops-test-job --eta-newline=1 --size=1G
+    rm -f /$volume/test1
+    echo "*** test2"
+    fio --filename=/$volume/test2 --direct=1 --rw=randrw --bs=64k --ioengine=libaio --iodepth=64 --runtime=120 --numjobs=4 --time_based --group_reporting --name=throughput-test-job --eta-newline=1 --size=1G
+    rm -f /$volume/test2
+    echo "*** test3"
+    fio --filename=/$volume/test3 --direct=1 --rw=randrw --bs=4k --ioengine=libaio --iodepth=1 --numjobs=1 --time_based --group_reporting --name=rwlatency-test-job --runtime=120 --eta-newline=1 --readonly --size=1G
+    rm -f /$volume/test3
+    done
+    echo "*** done"
+    sleep 3600
+kind: ConfigMap
+metadata:
+  name: scripts
