@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hpa-tester
+  labels:
+    app: hpa-tester
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hpa-tester
+  template:
+    metadata:
+      labels:
+        app: hpa-tester
+    spec:
+      initContainers:
+      - name: hpa-tester-init
+        image: quay.io/akaris/hpa-tester:latest
+        command:
+        - sleep
+        - "30"
+        resources:
+          requests:
+            cpu: "200m"
+            memory: "1024Mi"
+      containers:
+      - name: hpa-tester
+        image: quay.io/akaris/hpa-tester:latest
+        command:
+        - /bin/bash
+        - /usr/local/bin/entrypoint.sh
+        resources:
+          requests:
+            cpu: "200m"
+            memory: "1024Mi"
+        env:
+        - name: DEPLOYMENT_NAME
+          value: "hpa-tester"
+        - name: SLEEP_TIME
+          value: "15"
+        # combined CPU of all pods in milliseconds (1000 is one full CPU)
+        - name: COMBINED_CPU_MS
+          value: "1600"
+        # combined Memory of all pods in MB
+        - name: COMBINED_MEMORY_MB
+          value: "4096"
