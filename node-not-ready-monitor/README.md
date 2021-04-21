@@ -11,12 +11,26 @@ At time of this writing, nothing prevents this script from filling up the root d
 
 ### Install instructions ###
 
-Install instructions:
+#### Building the container
+
+First, register the build system:
 ~~~
-oc new-project not-ready-monitor || oc project not-ready-monitor
-oc adm policy add-scc-to-user privileged -z default
-for f in not-ready-monitor-role.yaml not-ready-monitor-role-binding.yaml not-ready-monitor-ds.yaml; do
-  oc apply -f $f
-done
+subscription-manager register ...
+~~~
+
+Then, build and push the container:
+~~~
+make build IMG=registry.example.com:5000/not-ready-monitor:latest
+make push IMG=registry.example.com:5000/not-ready-monitor:latest
+~~~
+
+Now, start the actual DaemonSet:
+~~~
+make install IMG=registry.example.com:5000/not-ready-monitor:latest
+~~~
+
+In order to uninstall, run:
+~~~
+make uninstall
 ~~~
 

@@ -17,7 +17,7 @@ spec:
       tolerations:
       # - key: node-role.kubernetes.io/master
       #  effect: NoSchedule
-      hostIPD: true
+      hostIPC: true
       hostNetwork: true
       hostPID: true
       containers:
@@ -38,25 +38,33 @@ spec:
           mountPath: /entrypoint-scripts
         - name: hostfs
           mountPath: /host
+        - name: run
+          mountPath: /run
+        - name: machineid
+          mountPath: /etc/machine-id
       terminationGracePeriodSeconds: 30
       volumes:
-      - name: hostfs
-        hostPath:
-          path: /
       - name: entrypoint-scripts
         configMap:
           name: entrypoint-scripts
+      - name: hostfs
+        hostPath:
+          path: /
+      - name: run
+        hostPath:
+          path: /run/
+          type: Directory
+      - name: machineid
+        hostPath:
+          path: /etc/machine-id
+          type: File
+
 ---
 apiVersion: v1
 data:
   entrypoint.sh: |
     #!/bin/bash
     INTERVAL=5
-    curl -O https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest-4.5/openshift-client-linux.tar.gz
-    tar -xf openshift-client-linux.tar.gz -C /usr/local/bin
-    yum install jq -y
-    yum install sysstat -y
-    yum install sos -y
     echo "All dependencies are ready."
     echo "Silently monitoring from now on every $INTERVAL seconds ..."
     while true; do
