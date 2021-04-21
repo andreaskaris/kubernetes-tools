@@ -85,9 +85,11 @@ data:
         if [ "$kubelet_status" != "True" ]; then
                 echo "Kubelet is down"
                 
-                if test "`find ${LOCK_FILE} -mmin +${MIN_GATHER_INTERVAL_MIN}`"; then
-                    echo "${LOCK_FILE} is older than ${MIN_GATHER_INTERVAL_MIN}. Removing ..." 
-                    rm -f ${LOCK_FILE}
+                if [ -f ${LOCK_FILE} ] ; then
+                    if test "`find ${LOCK_FILE} -mmin +${MIN_GATHER_INTERVAL_MIN}`"; then
+                        echo "${LOCK_FILE} is older than ${MIN_GATHER_INTERVAL_MIN}. Removing ..." 
+                        rm -f ${LOCK_FILE}
+                    fi
                 fi
 
                 if [ -f ${LOCK_FILE} ] ; then
