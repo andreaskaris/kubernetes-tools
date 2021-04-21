@@ -14,7 +14,7 @@ spec:
       labels:
         name: not-ready-monitor
     spec:
-      tolerations:
+      # tolerations:
       # - key: node-role.kubernetes.io/master
       #  effect: NoSchedule
       hostIPC: true
