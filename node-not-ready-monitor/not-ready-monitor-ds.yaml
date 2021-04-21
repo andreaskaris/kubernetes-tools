@@ -64,26 +64,46 @@ apiVersion: v1
 data:
   entrypoint.sh: |
     #!/bin/bash
-    INTERVAL=5
+    OUTDIR=/host/var/tmp
+    MONITOR_INTERVAL_SEC=5
+    MIN_GATHER_INTERVAL_MIN=60
+    LOCK_FILE=${OUT_DIR}/node-not-ready-monitor.lock
+    MIN_AVAILABLE_GB=600
     echo "All dependencies are ready."
-    echo "Silently monitoring from now on every $INTERVAL seconds ..."
+    echo "Silently monitoring from now on every ${MONITOR_INTERVAL_SEC} seconds ..."
     while true; do
         kubelet_status=$(oc get nodes ${NODE_NAME} -o json | jq '.status.conditions[] |  select(.reason == "KubeletReady") .status' | sed 's/"//g')
         if [ "$kubelet_status" != "True" ]; then
                 echo "Kubelet is down"
-                echo "Generating sosreport"
-                sosreport --batch  -k crio.all=on -k crio.logs=on --sysroot /host --all-logs | tee /tmp/log.txt
-                # tmp_sosreport_file=$(grep 'tar.xz' /tmp/log.txt  | awk '{print $1}')
-                # sosreport_basename=$(basename $tmp_sosreport_file)
-                # echo "Moving file $tmp_sosreport_file to /host/var/tmp/$sosreport_basename"
-                # mv $tmp_sosreport_file /host/var/tmp/$sosreport_basename
+                
+                touch ${LOCK_FILE}
+                if test "`find ${LOCK_FILE} -mmin +${MIN_GATHER_INTERVAL_MIN}`"; then
+                    echo "${LOCK_FILE} is older than ${MIN_GATHER_INTERVAL_MIN}. Removing ..." 
+                    rm -f ${LOCK_FILE}
+                fi
 
-                echo "Capturing /var/log/journal"
-                tar -czf /host/var/tmp/journal.${NODE_NAME}.$(date +%s).tar.gz /host/var/log/journal
-                # echo "Capturing /var/log/containers"
-                # tar -czhf /host/var/tmp/containers.${NODE_NAME}.$(date +%s).tar.gz /host/var/log/containers
-                echo "Capturing /var/log/pods"
-                tar -czhf /host/var/tmp/pods.${NODE_NAME}.$(date +%s).tar.gz /host/var/log/containers
+                if ! [ -f ${LOCK_FILE} ] ; then
+                    available=$(df ${OUTDIR} | tail -n+2 | awk '{print $4}')
+                    available_gb=$(echo "$available / 1024 / 1024" | bc)
+                    if  [ "$available_gb" -lt "$MIN_AVAILABLE_GB" ]; then
+                        echo "Not enough disk space to generate a data capture"
+                    else
+                        touch ${LOCK_FILE}
+                        echo "Generating sosreport"
+                        sosreport --batch  -k crio.all=on -k crio.logs=on --sysroot /host --all-logs | tee /tmp/log.txt
+                        # tmp_sosreport_file=$(grep 'tar.xz' /tmp/log.txt  | awk '{print $1}')
+                        # sosreport_basename=$(basename $tmp_sosreport_file)
+                        # echo "Moving file $tmp_sosreport_file to /host/var/tmp/$sosreport_basename"
+                        # mv $tmp_sosreport_file /host/var/tmp/$sosreport_basename
+
+                        echo "Capturing /var/log/journal"
+                        tar -czf ${OUTDIR}/journal.${NODE_NAME}.$(date +%s).tar.gz /host/var/log/journal
+                        # echo "Capturing /var/log/containers"
+                        # tar -czhf /host/var/tmp/containers.${NODE_NAME}.$(date +%s).tar.gz /host/var/log/containers
+                        echo "Capturing /var/log/pods"
+                        tar -czhf ${OUTDIR}/pods.${NODE_NAME}.$(date +%s).tar.gz /host/var/log/containers
+                    fi
+                fi
 
                 echo "Restarting kubelet"
                 # the following works when hostIPD, hostPID, hostNetwork are true
@@ -99,7 +119,7 @@ data:
                 echo "Exiting"
                 exit 0
         fi 
-        sleep $INTERVAL
+        sleep $MONITOR_INTERVAL_SEC
         echo -n "."
     done
 kind: ConfigMap
