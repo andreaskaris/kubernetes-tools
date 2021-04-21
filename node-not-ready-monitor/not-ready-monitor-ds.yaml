@@ -67,7 +67,7 @@ data:
     OUTDIR=/host/var/tmp
     MONITOR_INTERVAL_SEC=5
     MIN_GATHER_INTERVAL_MIN=60
-    LOCK_FILE=${OUT_DIR}/node-not-ready-monitor.lock
+    LOCK_FILE=${OUTDIR}/node-not-ready-monitor.lock
     MIN_AVAILABLE_GB=500
 
     for binary in bc sosreport find jq oc; do
