@@ -73,15 +73,17 @@ data:
                 echo "Kubelet is down"
                 echo "Generating sosreport"
                 sosreport --batch  -k crio.all=on -k crio.logs=on --sysroot /host --all-logs | tee /tmp/log.txt
-                tmp_sosreport_file=$(grep 'tar.xz' /tmp/log.txt  | awk '{print $1}')
-                sosreport_basename=$(basename $tmp_sosreport_file)
-                echo "Moving file $tmp_sosreport_file to /host/var/tmp/$sosreport_basename"
-                mv $tmp_sosreport_file /host/var/tmp/$sosreport_basename
+                # tmp_sosreport_file=$(grep 'tar.xz' /tmp/log.txt  | awk '{print $1}')
+                # sosreport_basename=$(basename $tmp_sosreport_file)
+                # echo "Moving file $tmp_sosreport_file to /host/var/tmp/$sosreport_basename"
+                # mv $tmp_sosreport_file /host/var/tmp/$sosreport_basename
 
                 echo "Capturing /var/log/journal"
                 tar -czf /host/var/tmp/journal.${NODE_NAME}.$(date +%s).tar.gz /host/var/log/journal
-                echo "Capturing /var/log/containers"
-                tar -czhf /host/var/tmp/containers.${NODE_NAME}.$(date +%s).tar.gz /host/var/log/containers
+                # echo "Capturing /var/log/containers"
+                # tar -czhf /host/var/tmp/containers.${NODE_NAME}.$(date +%s).tar.gz /host/var/log/containers
+                echo "Capturing /var/log/pods"
+                tar -czhf /host/var/tmp/pods.${NODE_NAME}.$(date +%s).tar.gz /host/var/log/containers
 
                 echo "Restarting kubelet"
                 # the following works when hostIPD, hostPID, hostNetwork are true
