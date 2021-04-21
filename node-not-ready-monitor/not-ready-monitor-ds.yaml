@@ -127,6 +127,8 @@ data:
                     sleep ${RESTART_SLEEP_SECONDS}
                     kubelet_status_inner=$(oc get nodes ${NODE_NAME} -o json | jq '.status.conditions[] |  select(.reason == "KubeletReady") .status' | sed 's/"//g')
                 done 
+                echo "Kubelet successfully restarted and not in Ready state"
+
                 # otherwise this here always works with /host mounted
                 # From https://github.com/openshift/cluster-network-operator/pull/785/commits/3093fbf87347580c4366d8508b2524630ba1b66a
                 #chroot /host \
