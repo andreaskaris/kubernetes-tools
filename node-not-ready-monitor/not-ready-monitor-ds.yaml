@@ -66,6 +66,7 @@ data:
     #!/bin/bash
     OUTDIR=/host/var/tmp
     MONITOR_INTERVAL_SEC=5
+    RESTART_SLEEP_SECONDS=300
     MIN_GATHER_INTERVAL_MIN=60
     LOCK_FILE=${OUTDIR}/node-not-ready-monitor.lock
     MIN_AVAILABLE_GB=500
@@ -118,8 +119,14 @@ data:
                 fi
 
                 echo "Restarting kubelet"
-                # the following works when hostIPD, hostPID, hostNetwork are true
-                chroot /host systemctl restart kubelet
+                # the following works when hostIPC, hostPID, hostNetwork are true
+                kubelet_status_inner=$(oc get nodes ${NODE_NAME} -o json | jq '.status.conditions[] |  select(.reason == "KubeletReady") .status' | sed 's/"//g')
+                while [ "${kubelet_status_inner}" != "True" ]; do
+                    echo "Restart attempt ..."
+                    chroot /host systemctl restart kubelet
+                    sleep ${RESTART_SLEEP_SECONDS}
+                    kubelet_status_inner=$(oc get nodes ${NODE_NAME} -o json | jq '.status.conditions[] |  select(.reason == "KubeletReady") .status' | sed 's/"//g')
+                done 
                 # otherwise this here always works with /host mounted
                 # From https://github.com/openshift/cluster-network-operator/pull/785/commits/3093fbf87347580c4366d8508b2524630ba1b66a
                 #chroot /host \
@@ -128,8 +135,6 @@ data:
                 #  --dest org.freedesktop.systemd1 \
                 #  --object-path /org/freedesktop/systemd1/unit/kubelet_2eservice \
                 #  --method org.freedesktop.systemd1.Unit.Restart "replace"
-                echo "Exiting"
-                exit 0
         fi 
         sleep $MONITOR_INTERVAL_SEC
         echo -n "."

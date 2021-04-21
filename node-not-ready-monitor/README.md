@@ -75,5 +75,6 @@ The following 3 settings should be customized:
 MONITOR_INTERVAL_SEC=5   # monitor every 5 seconds
 MIN_GATHER_INTERVAL_MIN=60   # only gather data once an hour
 MIN_AVAILABLE_GB=500     # keep a minimum of 500 GB disk space on /var/tmp
+RESTART_SLEEP_SECONDS=300  # time to wait before trying another kubelet restart
 ~~~
 
