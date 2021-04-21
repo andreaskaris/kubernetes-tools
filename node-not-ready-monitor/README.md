@@ -68,3 +68,12 @@ Then, the script will restart the worker's kubelet service and will exit.
 
 As soon as the node's kubelet comes back online, the pod will be restarted and the script will start monitoring anew.
 
+### Configuration
+
+The following 3 settings should be customized:
+~~~
+MONITOR_INTERVAL_SEC=5   # monitor every 5 seconds
+MIN_GATHER_INTERVAL_MIN=60   # only gather data once an hour
+MIN_AVAILABLE_GB=500     # keep a minimum of 500 GB disk space on /var/tmp
+~~~
+
