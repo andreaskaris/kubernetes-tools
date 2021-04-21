@@ -113,7 +113,7 @@ data:
                         # echo "Capturing /var/log/containers"
                         # tar -czhf /host/var/tmp/containers.${NODE_NAME}.$(date +%s).tar.gz /host/var/log/containers
                         echo "Capturing /var/log/pods"
-                        tar -czhf ${OUTDIR}/pods.${NODE_NAME}.$(date +%s).tar.gz /host/var/log/containers
+                        tar -czhf ${OUTDIR}/pods.${NODE_NAME}.$(date +%s).tar.gz /host/var/log/pods
                     fi
                 fi
 
