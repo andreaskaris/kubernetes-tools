@@ -119,15 +119,15 @@ data:
 
                 echo "Restarting kubelet"
                 # the following works when hostIPD, hostPID, hostNetwork are true
-                # chroot /host systemctl restart kubelet
+                chroot /host systemctl restart kubelet
                 # otherwise this here always works with /host mounted
                 # From https://github.com/openshift/cluster-network-operator/pull/785/commits/3093fbf87347580c4366d8508b2524630ba1b66a
-                chroot /host \
-                  gdbus call \
-                  --system \
-                  --dest org.freedesktop.systemd1 \
-                  --object-path /org/freedesktop/systemd1/unit/kubelet_2eservice \
-                  --method org.freedesktop.systemd1.Unit.Restart "replace"
+                #chroot /host \
+                #  gdbus call \
+                #  --system \
+                #  --dest org.freedesktop.systemd1 \
+                #  --object-path /org/freedesktop/systemd1/unit/kubelet_2eservice \
+                #  --method org.freedesktop.systemd1.Unit.Restart "replace"
                 echo "Exiting"
                 exit 0
         fi 
