@@ -69,6 +69,15 @@ data:
     MIN_GATHER_INTERVAL_MIN=60
     LOCK_FILE=${OUT_DIR}/node-not-ready-monitor.lock
     MIN_AVAILABLE_GB=500
+
+    for binary in bc sosreport find jq oc; do
+        which ${binary}
+        if [ "$?" != "0" ]; then
+            echo "Dependency not met: ${binary}"
+            exit 1
+        fi
+    done
+
     echo "All dependencies are ready."
     echo "Silently monitoring from now on every ${MONITOR_INTERVAL_SEC} seconds ..."
     while true; do
