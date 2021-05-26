@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: test
+  labels:
+    app: test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test
+  template:
+    metadata:
+      labels:
+        app: test
+    spec:
+      serviceAccount: statefulset
+      serviceAccountName: statefulset
+      #securityContext:
+      #  runAsUser: 0
+      containers:
+      - name: fedora
+        image: quay.io/akaris/fedora-nobody
+        imagePullPolicy: "Always"
+        command:
+          - "sleep"
+          - "infinity" 
+        volumeMounts:
+        - mountPath: /test
+          name: test
+  volumeClaimTemplates:
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      creationTimestamp: null
+      name: test
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1Gi
+      storageClassName: gp2
+      volumeMode: Filesystem

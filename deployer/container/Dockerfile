@@ -1,0 +1,2 @@
+FROM fedora
+USER 99:99

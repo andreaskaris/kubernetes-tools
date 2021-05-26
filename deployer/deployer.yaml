@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployer
+  labels:
+    app: deployer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: deployer
+  template:
+    metadata:
+      labels:
+        app: deployer
+    spec:
+      securityContext:
+        runAsUser: 99
+        fsGroup: 99
+        runAsNonRoot: true
+      serviceAccount: deployer
+      serviceAccountName: deployer
+      #securityContext:
+      #  runAsUser: 0
+      containers:
+      - name: fedora
+        image: fedora
+        command:
+          - /bin/bash
+          - -x
+          - /scripts/entrypoint.sh
+        volumeMounts:
+        - mountPath: /scripts
+          name: scripts
+        - mountPath: /usr/local/bin
+          name: usrlocalbin
+      volumes:
+      - name: scripts
+        configMap:
+          name: scripts
+      - name: usrlocalbin
+        emptyDir: {}
