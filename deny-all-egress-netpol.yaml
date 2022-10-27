@@ -1,0 +1,15 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-egress
+  namespace: test2
+spec:
+  podSelector: {}
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: test2
+  policyTypes:
+  - Egress

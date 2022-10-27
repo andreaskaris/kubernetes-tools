@@ -1,3 +1,4 @@
+# MUST RUN: oc adm policy add-scc-to-user anyuid -z default
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
@@ -28,8 +29,8 @@ spec:
       port: 80
       targetPort: 80
 ---
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: v1
+kind: DeploymentConfig
 metadata:
   name: httpbin-deploymentconfig
   labels:
@@ -37,8 +38,7 @@ metadata:
 spec:
   replicas: 1
   selector:
-    matchLabels:
-      app: httpbin-pod
+    app: httpbin-pod
   template:
     metadata:
       labels:
@@ -57,13 +57,6 @@ spec:
           - "dst" 
           - "port"
           - "80"
-        securityContext:
-          runAsUser: 0
-          capabilities:
-            add:
-              - "SETFCAP"
-              - "CAP_NET_RAW"
-              - "CAP_NET_ADMIN"
       - name: httpbin
         image: kennethreitz/httpbin
         imagePullPolicy: Always

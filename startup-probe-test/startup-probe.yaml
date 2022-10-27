@@ -1,0 +1,109 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: fedora-service
+  labels:
+    app: fedora-deployment
+spec:
+  selector:
+    app: fedora-pod
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fedora-deployment
+  labels:
+    app: fedora-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fedora-pod
+  template:
+    metadata:
+      labels:
+        app: fedora-pod
+    spec:
+      containers:
+      - name: tshark
+        image: danielguerra/alpine-tshark 
+        command:
+          - "tshark"
+          - "-l"
+          - "-t"
+          - "ad"
+          - "-i"
+          - "any"
+          - "-Y"
+          - "http"
+          - "dst"
+          - "port"
+          - "80"
+        securityContext:
+          runAsUser: 0
+          capabilities:
+            add:
+              - "SETFCAP"
+              - "CAP_NET_RAW"
+              - "CAP_NET_ADMIN"
+      - name: fedora
+        image: registry.fedoraproject.org/fedora:latest
+        imagePullPolicy: Always
+        livenessProbe:
+          exec:
+            command:
+            - /bin/bash
+            - -c
+            - |
+              #!/bin/bash
+              curl localhost:80
+          periodSeconds: 30
+          timeoutSeconds: 20
+        startupProbe:
+          exec:
+            command:
+            - /bin/bash
+            - -c
+            - |
+              #!/bin/bash
+              curl localhost:80
+          initialDelaySeconds: 15
+          periodSeconds: 30
+          timeoutSeconds: 20
+          failureThreshold: 10
+        command:
+        - /bin/bash
+        - -xc
+        - |
+          #!/bin/bash
+          cat <<'EOF' > /tmp/server.py
+          #!/usr/bin/python3
+          from http.server import BaseHTTPRequestHandler, HTTPServer
+          import time
+          import sys
+          from datetime import datetime
+          
+          sleep_for = 120
+          start_time = time.time()
+          
+          class handler(BaseHTTPRequestHandler):
+              def do_GET(self):
+                  print("%s Received connection request" % (datetime.now()), file=sys.stderr)
+                  while time.time() - start_time < sleep_for:
+                    print("%s Still sleeping" % (datetime.now()), file=sys.stderr)
+                    time.sleep(5)
+                  print("%s Sending ok" % (datetime.now()), file=sys.stderr)
+                  self.send_response(200)
+                  self.send_header('Content-type','text/html')
+                  self.end_headers()
+                  self.wfile.write(bytes("OK!", "utf8"))
+          
+          print("Starting server", file=sys.stderr)
+          with HTTPServer(('', 80), handler) as server:
+              server.serve_forever()
+          EOF
+          python3 /tmp/server.py
