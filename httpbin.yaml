@@ -1,39 +1,26 @@
-apiVersion: route.openshift.io/v1
-kind: Route
-metadata:
-  labels:
-    app: httpbin-deploymentconfig
-  name: httpbin-service
-spec:
-  host: httpbin.apps.akaris2.lab.pnq2.cee.redhat.com
-  port:
-    targetPort: 80
-  to:
-    kind: Service
-    name: httpbin-service
-    weight: 100
-  wildcardPolicy: None
+# oc adm policy add-scc-to-user anyuid -z default
+# oc expose svc httpbin-service
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: httpbin-service
   labels:
-    app: httpbin-deploymentconfig
+    app: httpbin-deployment
 spec:
   selector:
     app: httpbin-pod
   ports:
     - protocol: TCP
       port: 80
-      targetPort: 80
+      targetPort: 8080
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: httpbin-deploymentconfig
+  name: httpbin-deployment
   labels:
-    app: httpbin-deploymentconfig
+    app: httpbin-deployment
 spec:
   replicas: 1
   selector:
@@ -45,32 +32,13 @@ spec:
         app: httpbin-pod
     spec:
       containers:
-      - name: tshark
-        image: danielguerra/alpine-tshark 
-        command:
-          - "tshark" 
-          - "-i" 
-          - "eth0" 
-          - "-Y" 
-          - "http" 
-          - "-V"  
-          - "dst" 
-          - "port"
-          - "80"
-        securityContext:
-          runAsUser: 0
-          capabilities:
-            add:
-              - "SETFCAP"
-              - "CAP_NET_RAW"
-              - "CAP_NET_ADMIN"
       - name: httpbin
         image: kennethreitz/httpbin
         imagePullPolicy: Always
         command:
         - "gunicorn"
         - "-b"
-        - "0.0.0.0:80"
+        - "0.0.0.0:8080"
         - "httpbin:app"
         - "-k"
         - "gevent"
